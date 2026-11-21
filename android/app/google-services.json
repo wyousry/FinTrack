@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "401432348450",
+    "project_id": "fintrack-92bf9",
+    "storage_bucket": "fintrack-92bf9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:401432348450:android:8c9e9c81ab97461a49c77b",
+        "android_client_info": {
+          "package_name": "com.example.fintrack"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "401432348450-9v3bqtogaknjfvvr1rjl75qbht0njn24.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.fintrack",
+            "certificate_hash": "31c8f777f624515c5974d44b1e1c12226ae4d47e"
+          }
+        },
+        {
+          "client_id": "401432348450-krfnpcks3nt77esrrusp177gjbnaigtu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXQwKuqjp-dzsIeK6biOSlVwnwO_yqlGU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "401432348450-krfnpcks3nt77esrrusp177gjbnaigtu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "401432348450-jvmhtc52opv3ck438fpa5ur15oie6a1f.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.fintrack"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
