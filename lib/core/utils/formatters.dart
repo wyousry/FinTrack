@@ -35,4 +35,15 @@ static String currencyShort(double amount) {
     if (now.hour < 17) return 'Good afternoon';
     return 'Good evening';
   }
+
+static String fullDate(DateTime date, {DateTime? now}) {
+  final current = now ?? DateTime.now();
+  final formatted = DateFormat.yMMMd().format(date);
+  final isToday = date.year == current.year &&
+      date.month == current.month &&
+      date.day == current.day;
+  return isToday ? 'Today, $formatted' : formatted;
+}
+
+static String time(DateTime date) => DateFormat.jm().format(date);
 }

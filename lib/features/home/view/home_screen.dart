@@ -14,6 +14,7 @@ import 'package:fintrack/features/home/view/widgets/recent_transactions_section.
 import 'package:fintrack/features/home/view/widgets/spending_overview_card.dart';
 import 'package:fintrack/features/home/viewmodel/home_cubit.dart';
 import 'package:fintrack/features/home/viewmodel/home_state.dart';
+import 'package:fintrack/features/transactions/model/transaction_type.dart';
 import 'package:fintrack/features/transactions/repository/transaction_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -42,16 +43,9 @@ class HomeScreen extends StatelessWidget {
 class _HomeView extends StatelessWidget {
   const _HomeView();
 
-  void _comingSoon(BuildContext context) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        const SnackBar(
-          content: Text('Add Transaction is coming next'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-  }
+void _addTransaction(BuildContext context, TransactionType type) {
+  context.push(AppRoutes.addTransaction, extra: type);
+}
 
   @override
   Widget build(BuildContext context) {
@@ -125,10 +119,10 @@ class _HomeView extends StatelessWidget {
       onToggleHidden: cubit.toggleBalanceVisibility,
     ),
     const SizedBox(height: 24),
-    QuickActions(
-      onIncome: () => _comingSoon(context),
-      onExpense: () => _comingSoon(context),
-    ),
+   QuickActions(
+  onIncome: () => _addTransaction(context, TransactionType.income),
+  onExpense: () => _addTransaction(context, TransactionType.expense),
+),
     const SizedBox(height: 24),
     if (state.isEmpty)
       AppCard(
@@ -140,7 +134,7 @@ class _HomeView extends StatelessWidget {
               title: 'No transactions yet',
               message: 'Add your first transaction to start tracking your spending.',
               actionLabel: 'Add Transaction',
-              onAction: () => _comingSoon(context),
+             onAction: () => _addTransaction(context, TransactionType.expense),
             ),
             if (kDebugMode)
               TextButton(

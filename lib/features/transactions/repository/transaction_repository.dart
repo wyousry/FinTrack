@@ -21,13 +21,18 @@ class TransactionRepository {
     }
   }
 
-  Future<void> addTransaction(TransactionModel transaction) async {
-    try {
-      await _firestoreService.addTransaction(transaction.userId, transaction.toMap());
-    } on FirebaseException catch (e) {
-      throw DataFailure(FirestoreErrors.messageFor(e.code));
-    }
+ Future<void> addTransaction(TransactionModel transaction) async {
+  try {
+    await _firestoreService
+        .addTransaction(transaction.userId, transaction.toMap())
+        .timeout(
+          const Duration(seconds: 8),
+          onTimeout: () {},
+        );
+  } on FirebaseException catch (e) {
+    throw DataFailure(FirestoreErrors.messageFor(e.code));
   }
+}
 
   Future<void> saveTransactions(
     String userId,
