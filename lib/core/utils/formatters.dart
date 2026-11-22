@@ -46,4 +46,6 @@ static String fullDate(DateTime date, {DateTime? now}) {
 }
 
 static String time(DateTime date) => DateFormat.jm().format(date);
+static String detailsDateTime(DateTime date) =>
+    '${DateFormat.yMMMd().format(date)} · ${DateFormat.jm().format(date)}';
 }

@@ -153,10 +153,12 @@ void _addTransaction(BuildContext context, TransactionType type) {
         categories: summary.spendingByCategory,
       ),
       const SizedBox(height: 24),
-      RecentTransactionsSection(
-        transactions: state.recentTransactions,
-        onSeeAll: () => context.go(AppRoutes.transactions),
-      ),
+     RecentTransactionsSection(
+  transactions: state.recentTransactions,
+  onSeeAll: () => context.go(AppRoutes.transactions),
+  onTransactionTap: (t) =>
+      context.push(AppRoutes.transactionDetailsPath(t.id)),
+),
     ],
     const SizedBox(height: 24),
     if (goal == null)

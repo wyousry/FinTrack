@@ -4,7 +4,7 @@ import 'package:fintrack/core/theme/app_text_styles.dart';
 import 'package:fintrack/features/transactions/model/transaction_type.dart';
 import 'package:flutter/material.dart';
 
-enum SegmentedVariant { filled, soft }
+enum SegmentedVariant { filled, soft, softArrows }
 
 class TypeSegmentedControl extends StatelessWidget {
   const TypeSegmentedControl({
@@ -42,7 +42,7 @@ class TypeSegmentedControl extends StatelessWidget {
               child: _Segment(
                 type: t,
                 selected: t == type,
-                filled: filled,
+                variant: variant,
                 onTap: () => onChanged(t),
               ),
             ),
@@ -56,17 +56,19 @@ class _Segment extends StatelessWidget {
   const _Segment({
     required this.type,
     required this.selected,
-    required this.filled,
+    required this.variant,
     required this.onTap,
   });
 
   final TransactionType type;
   final bool selected;
-  final bool filled;
+  final SegmentedVariant variant;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final filled = variant == SegmentedVariant.filled;
+    final arrows = variant == SegmentedVariant.softArrows;
     final isExpense = type == TransactionType.expense;
     final typeColor = isExpense ? AppColors.negative : AppColors.positive;
 
@@ -84,12 +86,17 @@ class _Segment extends StatelessWidget {
       background = selected ? AppColors.surface : Colors.transparent;
       foreground = selected ? AppColors.textPrimary : AppColors.textSecondary;
       iconColor = typeColor;
-      weight = selected ? FontWeight.w700 : FontWeight.w500;
+      weight = arrows ? FontWeight.w600 : (selected ? FontWeight.w700 : FontWeight.w500);
     }
 
-    final icon = filled
-        ? (isExpense ? Icons.trending_down_rounded : Icons.trending_up_rounded)
-        : (isExpense ? Icons.north_east_rounded : Icons.south_rounded);
+    final IconData icon;
+    if (filled) {
+      icon = isExpense ? Icons.trending_down_rounded : Icons.trending_up_rounded;
+    } else if (arrows) {
+      icon = isExpense ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded;
+    } else {
+      icon = isExpense ? Icons.north_east_rounded : Icons.south_rounded;
+    }
 
     return Semantics(
       button: true,
@@ -111,7 +118,7 @@ class _Segment extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(icon, size: filled ? 16 : 12, color: iconColor),
-              const SizedBox(width: 8),
+              SizedBox(width: arrows ? 6 : 8),
               Text(
                 isExpense ? 'Expense' : 'Income',
                 style: AppTextStyles.body.copyWith(color: foreground, fontWeight: weight),

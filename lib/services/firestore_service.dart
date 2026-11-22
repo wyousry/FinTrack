@@ -20,8 +20,8 @@ Stream<List<Map<String, dynamic>>> watchGoals(String userId) {
       .map((snapshot) => snapshot.docs.map(_toPlainMap).toList());
 }
 
-Future<void> addGoal(String userId, Map<String, dynamic> data) {
-  return _goals(userId).add({
+Future<void> addGoal(String userId, Map<String, dynamic> data) async {
+  await _goals(userId).add({
     ...data,
     'createdAt': FieldValue.serverTimestamp(),
     'updatedAt': FieldValue.serverTimestamp(),
@@ -46,13 +46,13 @@ Future<void> deleteGoal(String userId, String goalId) {
         .map((snapshot) => snapshot.docs.map(_toPlainMap).toList());
   }
 
-  Future<void> addTransaction(String userId, Map<String, dynamic> data) {
-    return _transactions(userId).add({
-      ...data,
-      'createdAt': FieldValue.serverTimestamp(),
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
-  }
+Future<void> addTransaction(String userId, Map<String, dynamic> data) async {
+  await _transactions(userId).add({
+    ...data,
+    'createdAt': FieldValue.serverTimestamp(),
+    'updatedAt': FieldValue.serverTimestamp(),
+  });
+}
 Future<void> setTransactions(
   String userId,
   Map<String, Map<String, dynamic>> transactionsById,
@@ -67,13 +67,35 @@ Future<void> setTransactions(
   });
   return batch.commit();
 }
+Map<String, dynamic> _toPlainMap(DocumentSnapshot<Map<String, dynamic>> doc) {
+  final data = doc.data() ?? const <String, dynamic>{};
+  return {
+    'id': doc.id,
+    ...data.map(
+      (key, value) => MapEntry(key, value is Timestamp ? value.toDate() : value),
+    ),
+  };
+}
 
-  Map<String, dynamic> _toPlainMap(QueryDocumentSnapshot<Map<String, dynamic>> doc) {
-    return {
-      'id': doc.id,
-      ...doc.data().map(
-            (key, value) => MapEntry(key, value is Timestamp ? value.toDate() : value),
-          ),
-    };
-  }
+Stream<Map<String, dynamic>?> watchTransaction(String userId, String transactionId) {
+  return _transactions(userId)
+      .doc(transactionId)
+      .snapshots()
+      .map((snapshot) => snapshot.exists ? _toPlainMap(snapshot) : null);
+}
+
+Future<void> updateTransaction(
+  String userId,
+  String transactionId,
+  Map<String, dynamic> data,
+) {
+  return _transactions(userId).doc(transactionId).update({
+    ...data,
+    'updatedAt': FieldValue.serverTimestamp(),
+  });
+}
+
+Future<void> deleteTransaction(String userId, String transactionId) {
+  return _transactions(userId).doc(transactionId).delete();
+}
 }

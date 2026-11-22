@@ -15,8 +15,9 @@ import 'package:fintrack/features/transactions/view/category_style.dart';
 import 'package:fintrack/features/transactions/view/widgets/amount_card.dart';
 import 'package:fintrack/features/transactions/view/widgets/transaction_field_card.dart';
 import 'package:fintrack/features/transactions/view/widgets/type_segmented_control.dart';
-import 'package:fintrack/features/transactions/viewmodel/add_transaction_cubit.dart';
-import 'package:fintrack/features/transactions/viewmodel/add_transaction_state.dart';
+import 'package:fintrack/features/transactions/model/transaction_model.dart';
+import 'package:fintrack/features/transactions/viewmodel/transaction_form_cubit.dart';
+import 'package:fintrack/features/transactions/viewmodel/transaction_form_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,23 +27,25 @@ class AddTransactionScreen extends StatelessWidget {
   const AddTransactionScreen({
     super.key,
     this.initialType = TransactionType.expense,
+    this.template,
   });
 
   final TransactionType initialType;
+  final TransactionModel? template;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => AddTransactionCubit(
+      create: (context) => TransactionFormCubit(
         authRepository: context.read<AuthRepository>(),
         transactionRepository: context.read<TransactionRepository>(),
         initialType: initialType,
+        template: template,
       ),
       child: const _AddTransactionView(),
     );
   }
 }
-
 class _AddTransactionView extends StatefulWidget {
   const _AddTransactionView();
 
@@ -51,15 +54,16 @@ class _AddTransactionView extends StatefulWidget {
 }
 
 class _AddTransactionViewState extends State<_AddTransactionView> {
-  final _amountController = TextEditingController();
-  final _noteController = TextEditingController();
+ late final TextEditingController _amountController;
+late final TextEditingController _noteController;
 
-  @override
-  void dispose() {
-    _amountController.dispose();
-    _noteController.dispose();
-    super.dispose();
-  }
+@override
+void initState() {
+  super.initState();
+  final cubit = context.read<TransactionFormCubit>();
+  _amountController = TextEditingController(text: cubit.state.amountText);
+  _noteController = TextEditingController(text: cubit.initialNote);
+}
 
   void _close(BuildContext context) {
     if (context.canPop()) {
@@ -74,7 +78,7 @@ class _AddTransactionViewState extends State<_AddTransactionView> {
       text: text,
       selection: TextSelection.collapsed(offset: text.length),
     );
-    context.read<AddTransactionCubit>().amountChanged(text);
+    context.read<TransactionFormCubit>().amountChanged(text);
   }
 
   void _quickAdd(double delta) =>
@@ -84,7 +88,7 @@ class _AddTransactionViewState extends State<_AddTransactionView> {
       _setAmount(AmountInput.backspace(_amountController.text));
 
   Future<void> _pickCategory() async {
-    final cubit = context.read<AddTransactionCubit>();
+    final cubit = context.read<TransactionFormCubit>();
     final picked = await context.push<Category>(
       AppRoutes.selectCategory,
       extra: CategoryPickerArgs(
@@ -96,7 +100,7 @@ class _AddTransactionViewState extends State<_AddTransactionView> {
   }
 
   Future<void> _pickDate() async {
-    final cubit = context.read<AddTransactionCubit>();
+    final cubit = context.read<TransactionFormCubit>();
     final current = cubit.state.date;
     final picked = await showDatePicker(
       context: context,
@@ -117,7 +121,7 @@ class _AddTransactionViewState extends State<_AddTransactionView> {
   }
 
   Future<void> _pickTime() async {
-    final cubit = context.read<AddTransactionCubit>();
+    final cubit = context.read<TransactionFormCubit>();
     final current = cubit.state.date;
     final picked = await showTimePicker(
       context: context,
@@ -137,11 +141,11 @@ class _AddTransactionViewState extends State<_AddTransactionView> {
 
   void _submit() {
     FocusScope.of(context).unfocus();
-    context.read<AddTransactionCubit>().save(note: _noteController.text);
+    context.read<TransactionFormCubit>().save(note: _noteController.text);
   }
 
-  void _onStateChanged(BuildContext context, AddTransactionState state) {
-    if (state.status == AddTransactionStatus.success) {
+  void _onStateChanged(BuildContext context, TransactionFormState state) {
+    if (state.status == TransactionFormStatus.success) {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
@@ -152,7 +156,7 @@ class _AddTransactionViewState extends State<_AddTransactionView> {
           ),
         );
       _close(context);
-    } else if (state.status == AddTransactionStatus.failure) {
+    } else if (state.status == TransactionFormStatus.failure) {
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(
@@ -171,7 +175,7 @@ class _AddTransactionViewState extends State<_AddTransactionView> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: BlocListener<AddTransactionCubit, AddTransactionState>(
+      body: BlocListener<TransactionFormCubit, TransactionFormState>(
         listenWhen: (prev, curr) => prev.status != curr.status,
         listener: _onStateChanged,
         child: Stack(
@@ -181,9 +185,9 @@ class _AddTransactionViewState extends State<_AddTransactionView> {
                 keyboardDismissBehavior:
                     ScrollViewKeyboardDismissBehavior.onDrag,
                 padding: EdgeInsets.fromLTRB(16, topPadding + 12, 16, 110),
-                child: BlocBuilder<AddTransactionCubit, AddTransactionState>(
+                child: BlocBuilder<TransactionFormCubit, TransactionFormState>(
                   builder: (context, state) {
-                    final cubit = context.read<AddTransactionCubit>();
+                    final cubit = context.read<TransactionFormCubit>();
                     return Column(
                       children: [
                         TypeSegmentedControl(
@@ -238,7 +242,7 @@ class _AddTransactionViewState extends State<_AddTransactionView> {
               left: 0,
               right: 0,
               bottom: 0,
-              child: BlocBuilder<AddTransactionCubit, AddTransactionState>(
+              child: BlocBuilder<TransactionFormCubit, TransactionFormState>(
                 buildWhen: (prev, curr) => prev.status != curr.status,
                 builder: (context, state) {
                   return StickyCta(
@@ -256,7 +260,7 @@ class _AddTransactionViewState extends State<_AddTransactionView> {
     );
   }
 
-  Widget _buildCategoryCard(AddTransactionState state) {
+  Widget _buildCategoryCard(TransactionFormState state) {
     final category = state.category;
     final style = category == null ? null : CategoryStyle.of(category.id);
 
@@ -277,7 +281,7 @@ class _AddTransactionViewState extends State<_AddTransactionView> {
     );
   }
 
-  Widget _buildDateCard(AddTransactionState state) {
+  Widget _buildDateCard(TransactionFormState state) {
     return TransactionFieldCard(
       icon: Icons.calendar_today_outlined,
       iconBackground: AppColors.blueTint,

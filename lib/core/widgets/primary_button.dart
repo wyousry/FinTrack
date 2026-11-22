@@ -6,6 +6,7 @@ class PrimaryButton extends StatelessWidget {
     super.key,
     required this.label,
     required this.onPressed,
+    this.leadingIcon,
     this.trailingIcon,
     this.isLoading = false,
     this.height = 52,
@@ -13,6 +14,7 @@ class PrimaryButton extends StatelessWidget {
 
   final String label;
   final VoidCallback? onPressed;
+  final IconData? leadingIcon;
   final IconData? trailingIcon;
   final bool isLoading;
   final double height;
@@ -41,6 +43,10 @@ class PrimaryButton extends StatelessWidget {
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  if (leadingIcon != null) ...[
+                    Icon(leadingIcon, size: 17),
+                    const SizedBox(width: 8),
+                  ],
                   Text(
                     label,
                     style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),

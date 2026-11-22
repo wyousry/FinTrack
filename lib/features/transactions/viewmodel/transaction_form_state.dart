@@ -1,16 +1,17 @@
+
 import 'package:equatable/equatable.dart';
 import 'package:fintrack/features/transactions/model/category.dart';
 import 'package:fintrack/features/transactions/model/transaction_type.dart';
 
-enum AddTransactionStatus { initial, saving, success, failure }
+enum TransactionFormStatus { initial, saving, success, failure }
 
-class AddTransactionState extends Equatable {
-  const AddTransactionState({
+class TransactionFormState extends Equatable {
+  const TransactionFormState({
     required this.type,
     required this.date,
     this.amountText = '',
     this.category,
-    this.status = AddTransactionStatus.initial,
+    this.status = TransactionFormStatus.initial,
     this.errorMessage,
     this.amountError,
     this.categoryError,
@@ -21,27 +22,27 @@ class AddTransactionState extends Equatable {
   final DateTime date;
   final String amountText;
   final Category? category;
-  final AddTransactionStatus status;
+  final TransactionFormStatus status;
   final String? errorMessage;
   final String? amountError;
   final String? categoryError;
   final String? dateError;
 
-  bool get isSaving => status == AddTransactionStatus.saving;
+  bool get isSaving => status == TransactionFormStatus.saving;
 
-  AddTransactionState copyWith({
+  TransactionFormState copyWith({
     TransactionType? type,
     DateTime? date,
     String? amountText,
     Category? category,
-    AddTransactionStatus? status,
+    TransactionFormStatus? status,
     String? errorMessage,
     bool clearCategory = false,
     bool clearAmountError = false,
     bool clearCategoryError = false,
     bool clearDateError = false,
   }) {
-    return AddTransactionState(
+    return TransactionFormState(
       type: type ?? this.type,
       date: date ?? this.date,
       amountText: amountText ?? this.amountText,
@@ -54,12 +55,12 @@ class AddTransactionState extends Equatable {
     );
   }
 
-  AddTransactionState withErrors({
+  TransactionFormState withErrors({
     String? amountError,
     String? categoryError,
     String? dateError,
   }) {
-    return AddTransactionState(
+    return TransactionFormState(
       type: type,
       date: date,
       amountText: amountText,
@@ -74,14 +75,14 @@ class AddTransactionState extends Equatable {
 
   @override
   List<Object?> get props => [
-    type,
-    date,
-    amountText,
-    category,
-    status,
-    errorMessage,
-    amountError,
-    categoryError,
-    dateError,
-  ];
+        type,
+        date,
+        amountText,
+        category,
+        status,
+        errorMessage,
+        amountError,
+        categoryError,
+        dateError,
+      ];
 }
